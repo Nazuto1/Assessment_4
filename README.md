@@ -1,9 +1,12 @@
 # Assessment 4 – R Bioinformatics Project
 
-> **Unit:** Applied Bioinformatics
-> **Report title (R Markdown):** *Assessment_4_R_Project* (HTML output)
-> **Author:** **N. Koppert**
-  > **Repository purpose:** Public, reproducible workflow demonstrating data wrangling, statistical analysis, and sequence analysis in R for Assessment 4 (Parts 1 & 2).
+**Unit:** Applied Bioinformatics
+
+**Report title (R Markdown):** *Assessment_4_R_Project* (HTML output)
+
+**Author:** **N. Koppert**
+
+**Repository purpose:** Public, reproducible workflow demonstrating data wrangling, statistical analysis, and sequence analysis in R for Assessment 4 (Parts 1 & 2).
 
 ---
   
@@ -11,14 +14,14 @@
   
   This repository provides a fully reproducible R Markdown workflow that implements **all required tasks for Assessment 4**:
   
-  * **Part 1 (Q1–Q10):** Tabular and graphical analysis of two datasets:
+**Part 1 (Q1–Q10):** Tabular and graphical analysis of two datasets:
   
-  * RNA-seq counts (`gene_expression.tsv`): import, summary statistics, ranking by mean expression, thresholding, and histogramming (log-transform included).
+* RNA-seq counts (`gene_expression.tsv`): import, summary statistics, ranking by mean expression, thresholding, and histogramming (log-transform included).
 * Tree growth (`growth_data.csv`): import, descriptive statistics per site and year, three comparative boxplots, 10-year growth computation, and a **Welch two-sample t-test** after variance diagnostics.
 
-* **Part 2 (Q1–Q6):** Comparative **genome coding sequence** (CDS) analysis for *Escherichia coli* K-12 MG1655 vs **Corynebacterium bovis**:
+**Part 2 (Q1–Q6):** Comparative **genome coding sequence** (CDS) analysis for *Escherichia coli* K-12 MG1655 vs **Corynebacterium bovis**:
   
-  * Programmatic retrieval from **Ensembl Genomes** (FTP), decompression, and parsing of CDS FASTA files.
+* Programmatic retrieval from **Ensembl Genomes** (FTP), decompression, and parsing of CDS FASTA files.
 * Genome‐scale summaries (CDS counts; total coding DNA).
 * CDS length statistics (mean/median) and distribution visualisation.
 * **Nucleotide** and **amino-acid** frequency profiling with comparative bar charts.
@@ -27,88 +30,204 @@
 
 ---
 
-## Inputs / Outputs
+Excellent observation, Zac — and you are absolutely correct.
+If your goal is **technical reproducibility** and formal documentation of your workflow, your Inputs/Outputs section should indeed be based on **each named code chunk**, not just the assignment questions.
 
-**P1 Q1**
+Because you have now named your chunks systematically (e.g., `import_gene_expression`, `growth_summary_stats`, `codon_usage_compute`), the most rigorous approach is to **describe inputs and outputs per chunk**, since that aligns directly with how `knitr` executes and tracks dependencies.
 
-* **Inputs:** URL to `gene_expression.tsv`.
-* **Outputs:** Markdown table showing the first six genes (via `kable`).
+Below is your **formally revised Inputs / Outputs section**, mapped **exactly to your named chunks**, using precise terminology and reflecting the *actual computational operations* in your `.Rmd` file.
 
-**P1 Q2**
+---
 
-* **Inputs:** In-memory object `raw_gene_expression`.
-* **Outputs:** Markdown table of `head()` including the appended mean column (via `kable`).
+## Inputs / Outputs (by code chunk)
 
-**P1 Q3**
+### **Setup and Package Loading**
 
-* **Inputs:** In-memory object from Q2.
-* **Outputs:** Markdown table of the top 10 genes ranked by mean expression (via `kable`).
+**Chunk: `setup`**
 
-**P1 Q4**
+* **Inputs:** None (initialization).
+* **Outputs:** Global `knitr` options set (`echo = TRUE`).
 
-* **Inputs:** In-memory mean expression vector.
-* **Outputs:** Scalar count printed to console.
+**Chunk: `load_packages`**
 
-**P1 Q5**
+* **Inputs:** None.
+* **Outputs:** Required CRAN packages installed (if missing) and loaded: `seqinr`, `R.utils`, `ggplot2`, and `knitr`.
 
-* **Inputs:** In-memory mean expression vector.
-* **Outputs:** Figure `p1_q5_hist_mean.png` (histogram of mean expression).
+---
 
-**P1 Q6**
+### **Part 1 — Gene Expression Analysis**
 
-* **Inputs:** URL to `growth_data.csv`.
-* **Outputs:** Column names printed (structure check).
+**Chunk: `import_gene_expression`**
 
-**P1 Q7**
+* **Inputs:** URL `"https://raw.githubusercontent.com/ghazkha/Assessment4/main/gene_expression.tsv"`.
+* **Outputs:** Data frame `raw_gene_expression`; Markdown table of the first six genes rendered via `kable()`.
 
-* **Inputs:** In-memory `growth_data`.
-* **Outputs:** Markdown table of mean ± SD by site × year.
+**Chunk: `calculate_mean_expression`**
 
-**P1 Q8**
+* **Inputs:** Object `raw_gene_expression`.
+* **Outputs:** Data frame `gene_expression` (with new column `mean_expression`); Markdown table of first six rows.
 
-* **Inputs:** In-memory `growth_data`.
-* **Outputs:** Figure `p1_q8_dbh_boxplot.png` (comparative box plots).
+**Chunk: `top10_mean_expression`**
 
-**P1 Q9**
+* **Inputs:** Object `gene_expression`.
+* **Outputs:** Markdown table listing the 10 genes with the highest mean expression values.
 
-* **Inputs:** In-memory `growth_data`.
-* **Outputs:** Markdown table of 10-year growth by site.
+**Chunk: `count_low_expression_genes`**
 
-**P1 Q10**
+* **Inputs:** `genes_sorted_by_mean$mean_expression`.
+* **Outputs:** Console scalar output: number of genes with mean expression < 10.
 
-* **Inputs:** In-memory growth summaries per site.
-* **Outputs:** Welch two-sample t-test output (including p-value).
+**Chunk: `plot_histogram_raw_means`**
 
-**P2 Q1**
+* **Inputs:** `gene_expression$mean_expression`.
+* **Outputs:** Figure — histogram of untransformed mean expression values.
 
-* **Inputs:** Ensembl FTP URLs for CDS FASTA files.
-* **Outputs:** Markdown table of CDS counts for the two organisms.
+**Chunk: `plot_histogram_log_means`**
 
-**P2 Q2**
+* **Inputs:** `gene_expression$mean_expression`.
+* **Outputs:** Figure — histogram of log-transformed mean expression values.
 
-* **Inputs:** Decompressed `.fa` files.
-* **Outputs:** Markdown table of total coding DNA (bp) per organism.
+---
 
-**P2 Q3**
+### **Part 1 — Tree Growth Analysis**
 
-* **Inputs:** `.fa` files parsed to CDS records.
-* **Outputs:** Figure `p2_q3_cds_len_boxplot.png` and reported mean/median CDS lengths.
+**Chunk: `import_growth_data`**
 
-**P2 Q4**
+* **Inputs:** URL `"https://raw.githubusercontent.com/ghazkha/Assessment4/main/growth_data.csv"`.
+* **Outputs:** Data frame `raw_growth_data`; column names printed to console.
 
-* **Inputs:** `.fa` files (nucleotide and translated amino-acid sequences).
-* **Outputs:** Bar-chart figures for nucleotide and amino-acid frequencies.
+**Chunk: `growth_summary_stats`**
 
-**P2 Q5**
+* **Inputs:** `raw_growth_data`.
+* **Outputs:** Data frame `summary_table` containing mean and SD of circumference by site and year; rendered Markdown table.
 
-* **Inputs:** `.fa` files (coding sequences).
-* **Outputs:** RSCU table(s) and associated plot(s) of codon-usage bias.
+**Chunk: `growth_boxplot_2005`**
 
-**P2 Q6**
+* **Inputs:** `growth_boxplot_data` subset for `Year == "2005"`.
+* **Outputs:** Figure — box plot comparing circumference between sites (2005).
 
-* **Inputs:** Protein sequences derived from CDS.
-* **Outputs:** Plot(s) of most over- and under-represented 3–5 aa k-mers per organism.
+**Chunk: `growth_boxplot_2020`**
 
+* **Inputs:** `growth_boxplot_data` subset for `Year == "2020"`.
+* **Outputs:** Figure — box plot comparing circumference between sites (2020).
+
+**Chunk: `growth_boxplot_combined`**
+
+* **Inputs:** `growth_boxplot_data` for both years.
+* **Outputs:** Figure — combined box plot comparing 2005 vs 2020 for both sites.
+
+**Chunk: `growth_10yr_mean`**
+
+* **Inputs:** Subsets `northeast` and `southwest`.
+* **Outputs:** Markdown table of mean 10-year growth (2010–2020) per site.
+
+**Chunk: `variance_ratio_test`**
+
+* **Inputs:** Growth vectors `northeast_growth` and `southwest_growth`.
+* **Outputs:** Console output of variance ratio (F) test.
+
+**Chunk: `welch_t_test`**
+
+* **Inputs:** Growth vectors `northeast_growth` and `southwest_growth`.
+* **Outputs:** Console output of Welch’s two-sample t-test (mean growth comparison).
+
+---
+
+### **Part 2 — Biological Sequence Analysis**
+
+**Chunk: `download_ecoli_cds`**
+
+* **Inputs:** Ensembl FTP URL for *E. coli* CDS FASTA file.
+* **Outputs:** Downloaded file `ecoli_cds.fa.gz`; decompressed file `ecoli_cds.fa`; console confirmation via `list.files()`.
+
+**Chunk: `download_cbovis_cds`**
+
+* **Inputs:** Ensembl FTP URL for *C. bovis* CDS FASTA file.
+* **Outputs:** Downloaded file `cbovis_cds.fa.gz`; decompressed file `cbovis_cds.fa`; console confirmation via `list.files()`.
+
+**Chunk: `read_fasta_sequences`**
+
+* **Inputs:** Files `ecoli_cds.fa` and `cbovis_cds.fa`.
+* **Outputs:** FASTA objects `cds_ecoli` and `cds_cbovis`.
+
+**Chunk: `count_cds_entries`**
+
+* **Inputs:** `cds_ecoli`, `cds_cbovis`.
+* **Outputs:** Markdown table of CDS counts per organism (`kable()`).
+
+**Chunk: `compare_total_coding_dna`**
+
+* **Inputs:** `cds_ecoli`, `cds_cbovis`.
+* **Outputs:** Markdown table of total coding DNA (bp) per organism (`kable()`).
+
+**Chunk: `analyze_cds_length`**
+
+* **Inputs:** `cds_ecoli`, `cds_cbovis`.
+* **Outputs:** Markdown table of mean and median CDS lengths (`kable()`).
+
+**Chunk: `plot_cds_length_boxplot`**
+
+* **Inputs:** Vectors `len_ecoli` and `len_cbovis`.
+* **Outputs:** Figure — box plot of CDS length distributions.
+
+**Chunk: `nucleotide_frequency_plot`**
+
+* **Inputs:** `cds_ecoli`, `cds_cbovis`.
+* **Outputs:** Figure — ggplot bar chart comparing nucleotide composition (A, T, G, C).
+
+**Chunk: `amino_acid_frequency_plot`**
+
+* **Inputs:** Translated protein sequences derived from `cds_ecoli` and `cds_cbovis`.
+* **Outputs:** Figure — ggplot bar chart comparing amino acid composition.
+
+---
+
+### **Part 2 — Codon and k-mer Analyses**
+
+**Chunk: `codon_usage_compute`**
+
+* **Inputs:** `cds_ecoli`, `cds_cbovis`.
+* **Outputs:**
+
+  * Two RSCU tables (`kable()` for *E. coli* and *C. bovis*).
+  * Combined `codon_usage_all` data frame for plotting.
+
+**Chunk: `codon_usage_heatmap`**
+
+* **Inputs:** `codon_usage_all`.
+* **Outputs:** ggplot heatmap showing codon usage bias across organisms.
+
+**Chunk: `codon_usage_barplot`**
+
+* **Inputs:** `codon_usage_all`.
+* **Outputs:** ggplot bar chart of RSCU values per codon for both species.
+
+**Chunk: `define_kmer_functions`**
+
+* **Inputs:** None.
+* **Outputs:** Three user-defined functions: `get_kmer_extremes()`, `create_kmer_df()`, and `plot_kmer_bar()`.
+
+**Chunk: `compute_kmer_frequencies`**
+
+* **Inputs:** Protein vectors `prot_ecoli_all` and `prot_cbovis_all`.
+* **Outputs:** Lists of k-mer frequency data (`freq_ecoli`, `freq_cbovis`), extracted top/bottom sets, and merged data frames (e.g., `ecoli_kmer_3`, `cbovis_kmer_4`, etc.).
+
+**Chunks: `plot_ecoli_kmer3`, `plot_cbovis_kmer3`, `plot_ecoli_kmer4`, `plot_cbovis_kmer4`, `plot_ecoli_kmer5`, `plot_cbovis_kmer5`**
+
+* **Inputs:** Corresponding k-mer data frames (`ecoli_kmer_n`, `cbovis_kmer_n`).
+* **Outputs:** Six ggplot bar charts showing over- and under-represented k-mers (3–5 aa) for both species.
+
+**Chunk: `combine_kmer_tables`**
+
+* **Inputs:** Individual k-mer data frames.
+* **Outputs:** Two Markdown tables summarising top and bottom 10 k-mers for *E. coli* and *C. bovis* (via `kable()`).
+
+**Chunk: `session_info`**
+
+* **Inputs:** None.
+* **Outputs:** Console listing of R environment details and loaded package versions.
+
+---
 
 ## Files included
   

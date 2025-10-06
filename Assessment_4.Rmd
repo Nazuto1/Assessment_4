@@ -15,7 +15,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 *****
 
-```{r}
+```{r load_packages}
 # Fix CRAN mirror so install.packages() runs without prompting
 options(repos = c(CRAN = "https://cloud.r-project.org"))
 
@@ -40,7 +40,7 @@ ensure_pkg("knitr") # For html table formatting
 
 A URL is defined linking to a .tsv file containing RNA-seq count data. The file is imported using read.table() with header = TRUE to treat the first line as column headers, row.names = 1 to assign gene identifiers as row names, and stringsAsFactors = FALSE to preserve character data types. This produces a data frame, raw_gene_expression, where rows represent genes and columns represent raw counts from three samples. The first six genes are extracted using head() and rendered as a markdown-formatted table using kable() from the knitr package.
 
-```{r}
+```{r import_gene_expression}
 # Define source URL
 URL_gene_expression="https://raw.githubusercontent.com/ghazkha/Assessment4/main/gene_expression.tsv"
 
@@ -65,7 +65,7 @@ knitr::kable(
 
 A new data frame, gene_expression, is created as a modifiable copy of raw_gene_expression, preserving the original dataset. The arithmetic mean of each gene’s expression across all samples is computed using rowMeans(), and the resulting values are stored in a new column named mean_expression. The na.rm = TRUE argument ensures that missing values are excluded from the calculation. The first six rows of the updated data frame are displayed using head() and formatted as a Markdown table with kable().
 
-```{r}
+```{r calculate_mean_expression}
 # Create new data set to modify while leaving original
 gene_expression <- raw_gene_expression 
 
@@ -85,7 +85,7 @@ knitr::kable(
 
 Genes are ranked by mean expression in descending order using order(), where the negative sign applied to gene_expression$mean_expression reverses the default ascending sort. The resulting index vector is used to reorder gene_expression, producing genes_sorted_by_mean. The head() function with n = 10 extracts the top 10 genes, which are displayed as a Markdown-formatted table using kable()
 
-```{r}
+```{r top10_mean_expression}
 # The order() function returns the row indices that would sort a vector.  
 # The negative sign in the argument `-gene_expression$mean_expression` sorts mean expression values in decreasing order.
 genes_sorted_by_mean <- gene_expression[order(-gene_expression$mean_expression),]
@@ -102,7 +102,7 @@ knitr::kable(
 
 A logical vector is created by evaluating genes_sorted_by_mean$mean_expression < 10, returning TRUE for genes with mean expression below 10. Applying sum() to this vector counts the number of such genes, since TRUE is treated as 1 and FALSE as 0. The result is displayed using cat().
 
-```{r}
+```{r count_low_expression_genes}
 # The sum() function returns the total of numeric values.  
 # The argument genes_sorted_by_mean$mean_expression < 10 produces a logical vector
 # and since TRUE = 1 and FALSE = 0, sum() returns the total number of genes with mean < 10.
@@ -117,7 +117,7 @@ cat("Number of genes with mean expression < 10:", num_low_expression, "\n")
 
 A histogram of raw gene-wise mean expression values is plotted using hist(). The resulting distribution is heavily right-skewed, which is common in untransformed RNA-seq count data.
 
-```{r}
+```{r plot_histogram_raw_means}
 # Plot histogram of raw mean expression values
 hist(gene_expression$mean_expression, 
      main = "Histogram of Gene Expression Means",
@@ -132,7 +132,7 @@ hist(gene_expression$mean_expression,
 
 To address this skewness, a log transformation is applied using log(gene_expression$mean_expression + 1), where adding 1 prevents undefined results from log(0). Following this, a second histogram is plotted using the log-transformed data.
 
-```{r}
+```{r plot_histogram_log_means}
 # Log-transform mean expression values to address right-skew
 # Adding 1 avoids log(0), which is undefined
 log_mean_expression <- log(gene_expression$mean_expression + 1)
@@ -157,7 +157,7 @@ hist(
 #### Step 6: Import this csv file into an R object. What are the column names?
 A URL is defined linking to a .csv file containing tree growth data. The file is imported using read.csv(), creating the data frame raw_growth_data, which includes measurements of tree circumference at two geographic sites: northeast and southwest. Column names are retrieved using colnames(), returning a character vector that lists the variable names in the dataset. This enables inspection of the dataset's structure and available variables for analysis.
 
-```{r}
+```{r import_growth_data}
 # Define the URL where growth_data.csv is stored on GitHub
 URL_growth_data <-"https://raw.githubusercontent.com/ghazkha/Assessment4/main/growth_data.csv"
 
@@ -174,7 +174,7 @@ The dataset is split into two subsets using logical indexing based on the Site v
 
 All computed statistics are consolidated into a summary data frame using data.frame(), listing each site and year alongside the calculated mean and standard deviation. The table is then formatted using kable() for markdown output.
 
-```{r}
+```{r growth_summary_stats}
 # Subset data by site
 northeast <- raw_growth_data[raw_growth_data$Site == "northeast", ]
 southwest <- raw_growth_data[raw_growth_data$Site == "southwest", ]
@@ -215,7 +215,7 @@ Tree circumference data from the northeast and southwest sites are restructured 
 
 Three box plots are then generated using boxplot() to compare tree circumference between northeast and southwest sites at 1) 2005 only, 2) 2020 only, and 3) 2005 & 2020. The formula interface Circumference ~ Site specifies that circumference is plotted by site. The subset() function is used to filter by year.
 
-```{r}
+```{r growth_boxplot_2005}
 # Convert northeast data to long format
 northeast_long <- data.frame(
   Circumference = c(northeast$Circumf_2005_cm, northeast$Circumf_2020_cm), # Combine 2005 & 2020 values
@@ -245,7 +245,7 @@ boxplot(Circumference ~ Site,
 
 *Figure 3. Box plot comparing tree circumference between the Northeast and Southwest sites at the beginning of the study (2005).*
 
-```{r}
+```{r growth_boxplot_2020}
 # Boxplot for 2020 — same structure as above
 boxplot(Circumference ~ Site,
         data = subset(growth_boxplot_data, Year == "2020"), # Subset for 2020
@@ -258,7 +258,7 @@ boxplot(Circumference ~ Site,
 
 *Figure 4. Box plot showing tree circumference at the Northeast and Southwest sites at the end of the study (2020).*
 
-```{r}
+```{r growth_boxplot_combined}
 # Grouped box plot for Tree circumference at start and end of study by site
 boxplot(Circumference ~ Site + Year,
         data = growth_boxplot_data,
@@ -279,7 +279,7 @@ Tree growth over the last 10 years (2010–2020) is calculated separately for th
 
 The results are compiled into a data frame, growth_summary_10y, and displayed as a Markdown-formatted table using kable().
 
-```{r}
+```{r growth_10yr_mean}
 # Calculate row-wise growth from 2010 to 2020 for each site
 northeast_growth <- northeast$Circumf_2020_cm - northeast$Circumf_2010_cm # Growth per tree at northeast site
 southwest_growth <- southwest$Circumf_2020_cm - southwest$Circumf_2010_cm # Growth per tree at southwest site
@@ -308,7 +308,7 @@ kable(
 
 A variance ratio (F) test was first conducted using var.test() to determine whether the variances of 10-year growth (2020–2010) between the northeast and southwest sites were equal. The test indicated that the true ratio of variances is not equal to one (p < 0.05). 
 
-```{r}
+```{r variance_ratio_test}
 # To determine the most appropriate t-test, a variance ratio (F) test comparing 10 year growth between sites is conducted 
 var_test_result <- var.test(
   northeast_growth,
@@ -325,7 +325,7 @@ Therefore, a Welch’s two-sample t-test was performed using t.test() with var.e
 
 The null hypothesis states that the mean 10-year growth is equal between the northeast and southwest sites. The alternative hypothesis states that the mean 10-year growth differs between the sites. The significance level was set at α = 0.05.
 
-```{r}
+```{r welch_t_test}
 
 # The variance ratio test showed variances are unequal (p<0.05)
 # Hence, a Welch two-sample t-test is performed
@@ -354,7 +354,7 @@ The test yielded t(87.98) = 1.89, p = 0.062, with a 95% confidence interval for 
 
 The coding DNA sequence (CDS) file for Escherichia coli K-12 MG1655 (GCA_000005845) was retrieved from the Ensembl Genomes FTP repository as a compressed FASTA file. It was downloaded using download.file() and decompressed with R.utils::gunzip(), yielding a usable FASTA file in the working directory.
 
-```{r}
+```{r download_ecoli_cds}
 # Define URL for the Escherichia coli str. K-12 substr. MG1655 str. K12 (GCA_000005845) CDS FASTA file
 URL_ecoli="https://ftp.ensemblgenomes.ebi.ac.uk/pub/bacteria/release-62/fasta/bacteria_0_collection/escherichia_coli_str_k_12_substr_mg1655_gca_000005845/cds/Escherichia_coli_str_k_12_substr_mg1655_gca_000005845.ASM584v2.cds.all.fa.gz"
 
@@ -372,7 +372,7 @@ list.files()
 
 The CDS FASTA file for Corynebacterium bovis (GCA_003932475) was downloaded and decompressed in the same manner.
 
-```{r}
+```{r download_cbovis_cds}
 # Define URL for Corynebacterium bovis (GCA_003932475) CDS FASTA file
 URL_cbovis="https://ftp.ensemblgenomes.ebi.ac.uk/pub/bacteria/release-62/fasta/bacteria_34_collection/corynebacterium_bovis_gca_003932475/cds/Corynebacterium_bovis_gca_003932475.ASM393247v1.cds.all.fa.gz"
 
@@ -390,7 +390,7 @@ list.files()
 
 The CDS FASTA files for E. coli and C. bovis were read into R using seqinr::read.fasta(). Each FASTA entry corresponds to one CDS record, and the argument as.string = TRUE ensures that each coding sequence is stored as a single continuous character string for easier handling.
 
-```{r}
+```{r read_fasta_sequences}
 # Read FASTA files into R and store as variables (each entry = one CDS sequence)
 # Argument as.string = TRUE keeps each CDS as a single string
 cds_ecoli  <- seqinr::read.fasta("ecoli_cds.fa")
@@ -401,7 +401,7 @@ cds_cbovis <- seqinr::read.fasta("cbovis_cds.fa")
 
 The number of CDS entries was determined with length(), which counts FASTA records. Results were combined into a data frame and displayed using knitr::kable().
 
-```{r}
+```{r count_cds_entries}
 # The length() function returns the number of entries in each FASTA list.
 # Each FASTA entry corresponds to one CDS record.
 n_cds_ecoli <- length(cds_ecoli)
@@ -427,7 +427,7 @@ As depicted in the table above, E. coli K-12 contains more than two-fold more co
 
 Total coding DNA was calculated by collapsing each organism’s CDS list into a nucleotide vector with unlist(), counting mononucleotides using seqinr::count(..., 1), and summing counts to obtain the total base pairs (bp). A data frame was created with organism labels and coding lengths, with stringsAsFactors = FALSE to avoid character-to-factor conversion, and results displayed using kable().
 
-```{r}
+```{r compare_total_coding_dna}
 # Construct a data frame reporting organism and total coding DNA (bp)
 coding_bp_table <- data.frame(
   # Declare organism labels
@@ -457,7 +457,7 @@ As depicted in the table above, the coding DNA in E.coli is nearly two-fold grea
 
 Per-CDS lengths were obtained by extracting the length column from summary(cds) and converting to numeric. Arithmetic means were computed with mean() and medians with median() for each organism.
 
-```{r fig.height=6, fig.width=7}
+```{r analyze_cds_length, fig.height=6, fig.width=7}
 # Extract per-CDS lengths (bp) for E. coli & C. bovis from the length column of summary(cds)
 len_ecoli <- as.numeric(summary(cds_ecoli)[, 1])
 len_cbovis <- as.numeric(summary(cds_cbovis)[, 1])
@@ -487,7 +487,7 @@ knitr::kable(
 
 A boxplot was then generated to visualise CDS length distributions across organisms
 
-```{r fig.height=7, fig.width=7}
+```{r plot_cds_length_boxplot, fig.height=7, fig.width=7}
 # Create a box-plot
 # Each box summarises the median, interquartile range, and outliers for the species.
 boxplot(
@@ -509,7 +509,7 @@ As depicted in the grouped box plot above, both E. coli and C. bovis show relati
 
 All coding sequences (CDS) from each organism were first collapsed into a single per-nucleotide vector using unlist(), giving one long string of bases. Single-base counts were computed using seqinr::count(..., 1). These counts were then normalised to proportions using x / sum(x) to show relative frequencies rather than absolute counts. Results from both organisms were combined into a data frame, and ggplot2 was used to plot bar plots showing comparison of nucleotide composition between E. coli and C. bovis.
 
-```{r fig.height=4, fig.width=8}
+```{r nucleotide_frequency_plot, fig.height=4, fig.width=8}
 # Count single-nucleotide frequencies (A, T, G, C) across all coding sequences for each organism
 # 'unlist()' flattens all CDS entries into a single character vector of bases
 # 'seqinr::count(..., 1)' counts mononucleotide occurrences (wordsize = 1)
@@ -553,7 +553,7 @@ The nucleotide composition plot above indicates that E. coli exhibits a balanced
 
 Each CDS was translated to amino acid sequences using seqinr::translate(). This produced a list of per-gene protein sequences for each organism. The sequences were flattened into one vector using unlist() and stop codons (“*”) removed to ensure only valid amino acids are counted. Residue counts were computed using seqinr::count(..., wordsize = 1) with a shared alphabet to ensure both organisms’ amino acid sets align. Counts were then normalised to proportions (x / sum(x)), combined into a data frame, and plotted with ggplot2 for direct comparison of amino acid composition across the two species.
 
-```{r fig.height=6, fig.width=10}
+```{r amino_acid_frequency_plot, fig.height=6, fig.width=10}
 # Translate all CDS to amino acid sequences for each organism
 # The seqinr::translate() function converts coding sequences (DNA) into protein sequences
 prot_ecoli <- lapply(cds_ecoli, seqinr::translate)
@@ -606,7 +606,7 @@ The grouped bar plot for amino acid composition indicates that both species use 
 
 The function seqinr::uco() calculates codon usage indices directly from nucleotide sequences, using the argument index = "rscu" to produce RSCU values. These represent the ratio of observed codon frequency to the expected frequency under uniform synonymous codon use (RSCU = 1.0 indicates unbiased usage). The unlist() function concatenates all CDS objects into a single sequence per organism. Results are displayed with knitr::kable() and merged using rbind() into a combined dataset for cross-species comparison.
 
-```{r}
+```{r codon_usage_compute}
 # Compute RSCU values for each species using the UCO function
 # Use unlist(...) to concatenate all coding sequences
 ecoli_usage <- uco(unlist(cds_ecoli[]), index = "rscu", as.data.frame = TRUE)
@@ -644,7 +644,7 @@ The dataset is subsetted to relevant columns (AA, Organism, and RSCU) using base
 
 A heatmap of codon bias is then plotted using ggplot2::geom_tile() to visualise RSCU variation between organisms. In the plot, color gradients represent RSCU intensity: high RSCU values (red, >1.0) denote codon overrepresentation, while low values (white, <1.0) denote underrepresentation.
 
-```{r fig.height=4, fig.width=10}
+```{r codon_usage_heatmap, fig.height=4, fig.width=10}
 # Prepare a subset of relevant columns for the heatmap
 heatmap_df <- codon_usage_all[, c("AA", "Organism", "RSCU")]
 heatmap_df$CodonGroup <- ifelse(as.numeric(factor(heatmap_df$AA)) <= 32, 
@@ -675,7 +675,7 @@ ggplot(heatmap_df, aes(x = toupper(AA), y = Organism, fill = RSCU)) +
 
 A comparative bar chart was then created using ggplot2::geom_bar() to display RSCU values per codon for both species.
 
-```{r fig.height=8, fig.width=10}
+```{r codon_usage_barplot, fig.height=8, fig.width=10}
 # Create a side-by-side bar chart of codon bias per amino acid
 ggplot(heatmap_df, aes(x = toupper(AA), y = RSCU, fill = Organism)) +
   geom_bar(stat = "identity", position = "dodge", width = 1, colour = "black") +
@@ -702,7 +702,7 @@ C. bovis exhibits stronger codon usage bias than E. coli, evidenced by greater d
 
 Prior to plotting, 3 functions were created to streamline k-mer identification and visualisation. get_kmer_extremes() extracts the ten most and least frequent k-mers from a frequency vector. create_kmer_df() combines these into a structured data frame with k-mer sequences, frequencies, organism, and length. plot_kmer_bar() generates ordered bar charts using ggplot2, displaying k-mers from least to most frequent with species-specific colours.
 
-```{r fig.height=5, fig.width=8}
+```{r define_kmer_functions, fig.height=5, fig.width=8}
 # Define a function to extract the top and bottom n k-mers by frequency
 get_kmer_extremes <- function(freq_vector, n = 10) {
   list(
@@ -739,7 +739,7 @@ plot_kmer_bar <- function(df, title) {
 
 Following this, seqinr::count() computed relative frequencies for each k-mer length, and lapply() applied get_kmer_extremes() to isolate the most and least frequent motifs. Data are formatted using create_kmer_df(), small offsets are added to frequencies to prevent zero-value omission in plots.
 
-```{r fig.height=5, fig.width=8}
+```{r compute_kmer_frequencies, fig.height=5, fig.width=8}
 # Count amino acid k-mer frequencies (3–5 amino acids) for E. coli
 freq_ecoli <- list(
   k3 = count(prot_ecoli_all, wordsize = 3, alphabet = aa_alphabet, freq = TRUE),
@@ -775,33 +775,35 @@ ecoli_kmer_5$adjusted_frequency <- ecoli_kmer_5$frequency + 0
 cbovis_kmer_3$adjusted_frequency <- cbovis_kmer_3$frequency + 0.00001
 cbovis_kmer_4$adjusted_frequency <- cbovis_kmer_4$frequency + 0.0001
 cbovis_kmer_5$adjusted_frequency <- cbovis_kmer_5$frequency + 0
+```
 
+```{r plot_ecoli_kmer3, compute_kmer_frequencies, fig.height=5, fig.width=8}
 # Plot 3-mer frequencies for E. coli and C. bovis
 plot_kmer_bar(ecoli_kmer_3, "E. coli: Ten most 10 Underrepresented (left) and Overrepresented (right) 3-mers")
 ```
 
 *Figure 6. Ten most over- and under-represented 3-mer amino-acid motifs in Escherichia coli.*
 
-```{r fig.height=5, fig.width=8}
+```{r plot_cbovis_kmer3, fig.height=5, fig.width=8}
 plot_kmer_bar(cbovis_kmer_3, "C. bovis: Ten most 10 Underrepresented (left) and Overrepresented (right) 3-mers")
 ```
 
 *Figure 7. Ten most over- and under-represented 3-mer amino-acid motifs in Corynebacterium bovis.*
 
-```{r fig.height=5, fig.width=8}
+```{r plot_ecoli_kmer4, fig.height=5, fig.width=8}
 # Plot 4-mer frequencies for E. coli and C. bovis
 plot_kmer_bar(ecoli_kmer_4, "E. coli: Ten most 10 Underrepresented (left) and Overrepresented (right) 4-mers")
 ```
 
 *Figure 8. Over- and under-represented 4-mer amino-acid motifs in Escherichia coli.*
 
-```{r fig.height=5, fig.width=8}
+```{r plot_cbovis_kmer4, fig.height=5, fig.width=8}
 plot_kmer_bar(cbovis_kmer_4, "C. bovis: Ten most 10 Underrepresented (left) and Overrepresented (right) 4-mers")
 ```
 
 **Figure 9. Over- and under-represented 4-mer amino-acid motifs in Corynebacterium bovis.**
 
-```{r fig.height=5, fig.width=8}
+```{r plot_ecoli_kmer5, fig.height=5, fig.width=8}
 # Plot 5-mer frequencies for E. coli and C. bovis
 plot_kmer_bar(ecoli_kmer_5, "E. coli: Ten most 10 Underrepresented (left) and Overrepresented (right) 5-mers")
 ```
@@ -809,7 +811,7 @@ plot_kmer_bar(ecoli_kmer_5, "E. coli: Ten most 10 Underrepresented (left) and Ov
 **Figure 10. Over- and under-represented 5-mer amino-acid motifs in Escherichia coli.**
 
 
-```{r fig.height=5, fig.width=8}
+```{r plot_cbovis_kmer5, fig.height=5, fig.width=8}
 plot_kmer_bar(cbovis_kmer_5, "C. bovis: Ten most 10 Underrepresented (left) and Overrepresented (right) 5-mers")
 
 ```
@@ -821,7 +823,7 @@ plot_kmer_bar(cbovis_kmer_5, "C. bovis: Ten most 10 Underrepresented (left) and 
 
 The following code merges all per-organism, per-length k-mer data frames into a unified table and displays them using knitr::kable(). This allows clear comparison of motif representation between E. coli and C. bovis.
 
-```{r}
+```{r combine_kmer_tables}
 # Combine E. coli 3-, 4-, and 5-mer data frames
 kmer_ecoli <- rbind(
   ecoli_kmer_3[, c("Organism", "Length", "type", "kmer", "frequency")],
@@ -877,7 +879,7 @@ See the README for further documentation, including references for software/tool
 
 #### Session information
 Details of the R environment and package versions used for this analysis
-```{r}
+```{r session_info}
 sessionInfo()
 ```
 
