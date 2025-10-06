@@ -30,15 +30,6 @@
 
 ---
 
-Excellent observation, Zac — and you are absolutely correct.
-If your goal is **technical reproducibility** and formal documentation of your workflow, your Inputs/Outputs section should indeed be based on **each named code chunk**, not just the assignment questions.
-
-Because you have now named your chunks systematically (e.g., `import_gene_expression`, `growth_summary_stats`, `codon_usage_compute`), the most rigorous approach is to **describe inputs and outputs per chunk**, since that aligns directly with how `knitr` executes and tracks dependencies.
-
-Below is your **formally revised Inputs / Outputs section**, mapped **exactly to your named chunks**, using precise terminology and reflecting the *actual computational operations* in your `.Rmd` file.
-
----
-
 ## Inputs / Outputs (by code chunk)
 
 ### **Setup and Package Loading**
