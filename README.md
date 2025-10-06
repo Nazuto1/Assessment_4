@@ -230,10 +230,10 @@ Self-contained R Markdown source implementing all steps for Parts 1 & 2, includi
 * `README.md` (this file)
 Comprehensive documentation (purpose, contents, how to run, contributors, reproducibility, and references).
 
- **Generated during execution (not committed):**
+ **Generated during execution:**
   
 * `gene_expression.tsv` and `growth_data.csv` are **fetched from GitHub** at run time (Part 1).
- * `ecoli_cds.fa.gz` → `ecoli_cds.fa` and `cbovis_cds.fa.gz` → `cbovis_cds.fa` are **downloaded from Ensembl Genomes FTP** and decompressed locally (Part 2).
+ * `ecoli_cds.fa.gz` → `ecoli_cds.fa` and `cbovis_cds.fa.gz` → `cbovis_cds.fa` are **downloaded from Ensembl Genomes FTP** and decompressed (Part 2).
  * HTML report, figures, and tables are created by knitting the Rmd.
 
 ---
