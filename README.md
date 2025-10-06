@@ -1,6 +1,6 @@
 # Assessment 4 – R Bioinformatics Project
 
-**Unit:** Applied Bioinformatics
+**Unit:** Applied Bioinformatics (Deakin University)
 
 **Report title (R Markdown):** *Assessment_4_R_Project* (HTML output)
 
@@ -273,13 +273,13 @@ The Rmd:
   
 ### Methodological notes
   
-  * **Part 1.
-* ** RNA-seq counts are treated as **raw integers**; histograms of mean counts therefore exhibit **right-skewness** typical of count data. A log(·+1) transform is used solely for **distributional visualisation**.
+* **Part 1.**
+* RNA-seq counts are treated as **raw integers**; histograms of mean counts therefore exhibit **right-skewness** typical of count data. A log(·+1) transform is used solely for **distributional visualisation**.
 * ** Ten-year growth comparison employs a **variance ratio test** to justify **Welch’s t-test** (heteroscedasticity-robust). This preserves nominal Type-I error under unequal variances and sample sizes.
 
 * **Part 2.**
   
-  * CDS lengths are derived from FASTA sequence records (nucleotides), with summary statistics reported alongside a **box-plot** to depict central tendency and dispersion.
+* CDS lengths are derived from FASTA sequence records (nucleotides), with summary statistics reported alongside a **box-plot** to depict central tendency and dispersion.
 * **RSCU** is computed to quantify codon-usage bias and visualised via a **heatmap** and grouped bars; values >1 indicate codon over-representation relative to uniform synonymous usage.
 * **k-mer** analyses (3–5 aa) use frequency‐based ranking; bar plots display the most over-/under-represented motifs per organism to reveal proteomic compositional signatures.
 
